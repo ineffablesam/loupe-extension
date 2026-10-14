@@ -1,0 +1,110 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: -apple-system, "SF Pro Display", "SF Pro Text", ui-sans-serif, system-ui, sans-serif;
+
+  --color-page: #f1f5f8;
+  --color-navy: #1c3f61;
+  --color-navy-soft: #4a6177;
+  --color-mute: #8e9aa6;
+  --color-primary: #2c73eb;
+  --color-primary-deep: #1d5fd1;
+  --color-ink-btn: #222222;
+  --color-tile: #e6e8e9;
+  --color-mint: #c6f5ea;
+  --color-mint-ink: #0e5a49;
+  --color-growth: #22a07c;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-page);
+  color: var(--color-navy);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: none;
+}
+
+.pt-safe { padding-top: env(safe-area-inset-top); }
+.pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
+@font-face {
+  font-family: "Ndot57Caps";
+  src: url("/fonts/Ndot57Caps-Regular.otf") format("opentype");
+  font-display: swap;
+}
+
+.font-dot {
+  font-family: "Ndot57Caps", ui-monospace, monospace;
+}
+
+/* ── Loupe scanner ──────────────────────────────────────────────────────── */
+
+.scan-frame {
+  border-radius: 28px;
+  box-shadow:
+    0 0 0 9999px rgb(5 12 34 / 0.66),
+    0 0 60px 6px rgb(58 128 255 / 0.18) inset;
+}
+
+.scan-glow {
+  background:
+    radial-gradient(120% 55% at 50% 108%, rgb(31 92 255 / 0.55), transparent 70%),
+    radial-gradient(90% 40% at 50% -8%, rgb(58 128 255 / 0.28), transparent 70%);
+}
+
+.scan-dots {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background-image: radial-gradient(circle, rgb(150 190 255 / 0.95) 1.2px, transparent 1.7px);
+  background-size: 11px 11px;
+  background-position: center;
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, transparent 28%, #000 49%, transparent 51%, transparent 100%);
+  mask-image: linear-gradient(180deg, transparent 0%, transparent 28%, #000 49%, transparent 51%, transparent 100%);
+  -webkit-mask-size: 100% 220%;
+  mask-size: 100% 220%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  animation: scan-dots 2.4s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+
+.scan-beam {
+  position: absolute;
+  left: 6%;
+  right: 6%;
+  height: 2px;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, transparent, #cfe0ff 30%, #ffffff 50%, #cfe0ff 70%, transparent);
+  box-shadow: 0 0 14px 2px rgb(58 128 255 / 0.9);
+  animation: scan-beam 2.4s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+
+@keyframes scan-dots {
+  from { -webkit-mask-position: 0 100%; mask-position: 0 100%; }
+  to   { -webkit-mask-position: 0 0;    mask-position: 0 0; }
+}
+
+@keyframes scan-beam {
+  from { top: 0%;   opacity: 0; }
+  12%  { opacity: 1; }
+  88%  { opacity: 1; }
+  to   { top: 100%; opacity: 0; }
+}
+
+.glass-dark {
+  background: rgb(255 255 255 / 0.1);
+  border: 1px solid rgb(255 255 255 / 0.14);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  backdrop-filter: blur(18px) saturate(1.4);
+}
