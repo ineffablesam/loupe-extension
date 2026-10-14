@@ -1,6 +1,10 @@
-# Loupe
+<p align="center">
+  <img src="public/images/loupe-logo.png" alt="Loupe" width="120" />
+</p>
 
-**The intelligence layer behind every purchase.**
+<h1 align="center">Loupe</h1>
+
+<p align="center"><strong>The intelligence layer behind every purchase.</strong></p>
 
 Loupe is a product concept for [Perpay](https://perpay.com): a Chrome side panel that sits alongside the shopping you already do and connects it to your Perpay account.
 
