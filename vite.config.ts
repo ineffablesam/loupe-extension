@@ -4,6 +4,7 @@ import { join } from 'node:path'
 import { defineConfig, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
+import { updateBuildMeta } from './scripts/build-meta'
 
 const root = import.meta.dirname
 const outDir = join(root, 'dist', 'extension')
@@ -34,8 +35,7 @@ function chromeExtension(): Plugin {
       // Chrome caches toolbar icons until the extension itself reloads.
       const iconsDir = join(root, 'public', 'icons')
       for (const icon of readdirSync(iconsDir).sort()) hash.update(readFileSync(join(iconsDir, icon)))
-      const meta = { buildId: Date.now(), shellHash: hash.digest('hex').slice(0, 12) }
-      writeFileSync(join(outDir, 'build-meta.json'), JSON.stringify(meta))
+      updateBuildMeta(outDir, { buildId: Date.now(), panelShellHash: hash.digest('hex').slice(0, 12) })
       if (isDev) {
         const time = new Date().toLocaleTimeString()
         console.log(`\n\x1b[32m✓\x1b[0m Loupe rebuilt at ${time} — side panel reloads automatically\n`)

@@ -4,10 +4,11 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "LOUPE_DEV=1 vite build --watch --mode development",
+    "dev": "LOUPE_DEV=1 vite build --watch --mode development & npm run dev:content; wait",
+    "dev:content": "LOUPE_DEV=1 vite build --config vite.content.config.ts --watch --mode development --clearScreen false",
     "dev:web": "vite --port 5174",
     "dev:mobile": "vite --config mobile/vite.config.ts",
-    "build": "vite build",
+    "build": "vite build && vite build --config vite.content.config.ts",
     "build:mobile": "vite build --config mobile/vite.config.ts",
     "typecheck": "tsc --noEmit"
   },
