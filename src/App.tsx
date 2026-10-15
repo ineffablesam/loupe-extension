@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import SplashScreen from './components/SplashScreen'
 import AuthScreen from './components/AuthScreen'
+import Lens from './components/Lens'
 import { clearSession, loadSession, type LoupeSession } from './lib/session'
 
 export default function App() {
@@ -18,30 +19,25 @@ export default function App() {
     setSession(null)
   }
 
-  const ready = !splashOpen && session !== undefined
+  // Signed-in shoppers go straight to the page; the splash is only for first launch and sign-in.
+  const showSplash = splashOpen && session === null
+  const ready = session !== undefined && !showSplash
 
   return (
     <>
-      <AnimatePresence>{splashOpen && <SplashScreen key="splash" onDone={closeSplash} />}</AnimatePresence>
+      <AnimatePresence>{showSplash && <SplashScreen key="splash" onDone={closeSplash} />}</AnimatePresence>
 
       <AnimatePresence mode="wait">
         {ready && !session && <AuthScreen key="auth" onAuthenticated={setSession} />}
-        {ready && session && <Home key="home" session={session} onSignOut={signOut} onReplaySplash={() => setSplashOpen(true)} />}
+        {ready && session && <Home key="home" session={session} onSignOut={signOut} />}
       </AnimatePresence>
     </>
   )
 }
 
-function Home({
-  session,
-  onSignOut,
-  onReplaySplash,
-}: {
-  session: LoupeSession
-  onSignOut: () => void
-  onReplaySplash: () => void
-}) {
-  const firstName = session.user.name.split(' ')[0]
+function Home({ session, onSignOut }: { session: LoupeSession; onSignOut: () => void }) {
+  const [menuOpen, setMenuOpen] = useState(false)
+  const initial = session.user.name.charAt(0).toUpperCase()
 
   return (
     <motion.main
@@ -51,40 +47,47 @@ function Home({
       exit={{ opacity: 0, y: -12 }}
       transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
     >
-      <header className="flex items-center justify-between px-5 pt-5">
-        <div className="flex items-center gap-2.5">
-          <img src="./images/loupe-logo.png" alt="" className="h-8 w-8 rounded-[10px]" draggable={false} />
-          <span className="font-dot text-[20px] leading-none tracking-[0.06em] text-ink">LOUPE</span>
+      <header className="relative flex items-center justify-between border-b border-line px-4 py-3">
+        <div className="flex items-center gap-2">
+          <span className="font-dot text-[19px] leading-none tracking-[0.06em] text-ink">LOUPE</span>
+          <span className="text-[11px] text-ink-faint">by</span>
+          <img src="./images/perpay-logo.svg" alt="Perpay" className="h-[12px] w-auto" draggable={false} />
         </div>
-        <img src="./images/perpay-logo.svg" alt="Perpay" className="h-[13px] w-auto opacity-80" draggable={false} />
+        <div className="flex items-center gap-2">
+          <span className="rounded-full bg-brand-wash px-2.5 py-1 text-[11.5px] font-semibold text-brand">
+            ${session.user.spendingLimit.toLocaleString()} limit
+          </span>
+          <button
+            type="button"
+            onClick={() => setMenuOpen((open) => !open)}
+            aria-label="Account"
+            className="grid h-7 w-7 place-items-center rounded-full bg-ink text-[12px] font-semibold text-white"
+          >
+            {initial}
+          </button>
+        </div>
+        <AnimatePresence>
+          {menuOpen && (
+            <motion.div
+              className="glass-card absolute right-4 top-12 z-20 w-48 p-1.5"
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -4 }}
+            >
+              <p className="truncate px-2.5 pb-1.5 pt-1 text-[12px] text-ink-soft">{session.user.email}</p>
+              <button
+                type="button"
+                onClick={onSignOut}
+                className="w-full rounded-xl px-2.5 py-2 text-left text-[13px] font-semibold text-ink transition hover:bg-canvas"
+              >
+                Sign out
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </header>
 
-      <section className="flex flex-1 flex-col items-center justify-center px-5">
-        <div className="glass-card w-full max-w-sm p-6 text-center">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-brand">Connected</p>
-          <h2 className="mt-2 text-[22px] font-semibold tracking-tight text-ink">Hi {firstName}</h2>
-          <p className="mt-1.5 text-sm text-ink-soft">
-            Spending limit{' '}
-            <span className="font-semibold text-ink">${session.user.spendingLimit.toLocaleString()}</span>
-          </p>
-          <div className="mt-5 flex justify-center gap-2">
-            <button
-              type="button"
-              onClick={onReplaySplash}
-              className="rounded-full bg-brand px-5 py-2 text-sm font-semibold text-white shadow-[0_6px_18px_-6px_rgb(31_92_255/0.6)] transition hover:bg-brand-deep"
-            >
-              Replay splash
-            </button>
-            <button
-              type="button"
-              onClick={onSignOut}
-              className="rounded-full border border-line bg-white px-5 py-2 text-sm font-semibold text-ink-soft transition hover:text-ink"
-            >
-              Sign out
-            </button>
-          </div>
-        </div>
-      </section>
+      <Lens user={session.user} />
     </motion.main>
   )
 }
