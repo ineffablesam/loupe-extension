@@ -1,9 +1,23 @@
+import type { Paycheck } from './paycheck'
+
+/** Something the shopper is already paying off on Perpay. */
+export interface ActivePlan {
+  name: string
+  perPay: number
+  pays: number
+  /** Payments already made. */
+  paid: number
+}
+
 export interface LoupeSession {
   token: string
   user: {
     name: string
     email: string
     spendingLimit: number
+    /** Missing on sessions paired before pay details were shared. */
+    paycheck?: Paycheck
+    plans?: ActivePlan[]
   }
   pairedAt: number
 }

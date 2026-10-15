@@ -9,6 +9,8 @@ export interface PairedUser {
   name: string
   email: string
   spendingLimit: number
+  paycheck: { net: number; hours: number; everyDays: number; anchor: string }
+  plans: { name: string; perPay: number; pays: number; paid: number }[]
 }
 
 interface PairSession {
@@ -31,6 +33,9 @@ const DEMO_USER: PairedUser = {
   name: 'Samuel Philip',
   email: 'sam@perpay.demo',
   spendingLimit: 1000,
+  // Paid every other Friday.
+  paycheck: { net: 1240, hours: 80, everyDays: 14, anchor: '2026-10-16' },
+  plans: [{ name: 'Dyson V8 Cordless Vacuum', perPay: 31.5, pays: 10, paid: 6 }],
 }
 
 function newCode() {
