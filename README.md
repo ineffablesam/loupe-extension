@@ -2,9 +2,9 @@
 
 # Loupe
 
-Loupe is a product concept for [Perpay](https://perpay.com): a Chrome side panel that sits alongside the shopping you already do and connects it to your Perpay account.
+The intelligence layer behind every purchase. Loupe is a Chrome extension concept that brings [Perpay](https://perpay.com) to all your shopping.
 
-On Amazon, Walmart, Best Buy and other stores, Loupe reads the product page and explains it in your terms: the full price, how many hours of work it costs, what it looks like per paycheck, and anything in the fine print worth knowing. When the same item is on the Perpay Marketplace, Loupe shows it right under the price, already planned against your pay schedule and spending limit.
+On Amazon, Walmart, Best Buy and other stores, it reads the product page and tells you what the price really means for you: how many hours of work it is, what it looks like per paycheck, whether it went up since you last looked, and anything in the fine print you'd want to know. If the same item is on the Perpay Marketplace, it shows up right there, already planned around your paycheck.
 
 > This is a concept project. It is not an official Perpay product and uses demo data only.
 
@@ -12,43 +12,25 @@ On Amazon, Walmart, Best Buy and other stores, Loupe reads the product page and 
 
 ![The Loupe card on Amazon, Walmart and Best Buy](docs/stores.jpg)
 
-## What's here
+## What it does
 
-- **Chrome extension** (Manifest V3)
-  - **On the store page:** the Loupe card under the price, Perpay chips on search results, an offer at checkout, and in-page notes that highlight the fine print they refer to
-  - **Price memory:** remembers what an item cost last time and says when it changed
-  - **Side panel:** animated splash, QR sign-in, the full page report, and your Perpay account (paycheck runway, limit planner, credit builder)
-  - **Reminders:** Chrome notifications before a return window or trial ends
-- **On-device AI**
-  - Gemini Nano through Chrome's built-in Prompt API reads the fine print and answers in a strict JSON schema
-  - Rules run first, and a verifier keeps an AI finding only if its text and numbers actually appear on the page
-- **Perpay Marketplace matching**
-  - A bundled snapshot of 16,531 listings, matched to the page on-device by title coverage and model
-- **Perpay mobile web app** (installable PWA)
-  - Replica of the Perpay home screen
-  - In-app camera scanner with a manual code fallback
-  - Approve / decline sheet that shares paycheck, limit and active plans with the panel
-- **Pairing service**
-  - Short-lived pairing sessions with live status over Server-Sent Events (`pending → scanned → approved`)
+- A Loupe card under the price on any product page: full price, hours of work, price changes, fine print and the Perpay option
+- A Perpay price on matching search results, and one last Perpay option at checkout
+- A side panel with the full report and your Perpay account: upcoming paychecks, spending limit and credit builder
+- Reminders before a return window or trial ends
+- QR sign-in with your phone
+
+The fine print is read by Gemini Nano, the model built into Chrome, so nothing you browse leaves your computer. Simple rules handle prices and fees, and anything the model says is checked against the page before it's shown.
+
+The phone side is a mock of the Perpay app, built only for this demo.
 
 ## How it works
 
-![Loupe system architecture and how Loupe works](docs/architecture.png)
-
-| Piece | Role |
-| --- | --- |
-| Content script | Reads the product page, matches it against the Marketplace catalogue, and draws the Loupe card, chips, checkout offer and notes into the page |
-| Side panel | React app for sign-in, the page report and the Perpay account view; runs the Gemini Nano pass |
-| Background service worker | Opens the panel from the page and schedules reminders with `chrome.alarms` |
-| Pairing service | Holds sign-in sessions and streams their status to the panel |
-| Perpay mobile app | Scans the QR code and approves the sign-in |
-| `chrome.storage.local` | Session, prices seen and reminders |
-
-Nothing about the pages you browse leaves the computer: the page reader, product matching and the AI pass all run locally.
+![How Loupe works](docs/architecture.png)
 
 ## Tech
 
-React 19 · TypeScript · Vite · Tailwind CSS 4 · Framer Motion · Canvas 2D · Chrome Prompt API (Gemini Nano) · `qr-scanner`
+React · TypeScript · Vite · Tailwind CSS · Framer Motion · Gemini Nano (Chrome Prompt API)
 
 ## Getting started
 
@@ -76,6 +58,8 @@ The panel reloads itself whenever a source file changes.
 
 ### Open the phone app
 
+> The phone app is a mock of the Perpay app, built only for this demo. It is not the real Perpay app and holds demo data only.
+
 The phone camera requires HTTPS, so `start.sh` serves the app over HTTPS on your local network using a [mkcert](https://github.com/FiloSottile/mkcert) certificate (`brew install mkcert && mkcert -install`).
 
 On each phone, once: open `http://<your-mac-ip>:5177` to install and trust the development certificate. Then open the phone app URL printed by `start.sh` and, optionally, add it to the Home Screen.
@@ -86,9 +70,9 @@ Alternatively, `./start.sh --tunnel` exposes the phone app through a Cloudflare 
 
 Open the Loupe side panel, then in the phone app tap the scan icon in the top bar and point it at the QR code. Approve the request on the phone and the panel signs in.
 
-### On-device AI
+### Gemini Nano
 
-The fine-print pass uses Gemini Nano through Chrome's [Prompt API](https://developer.chrome.com/docs/ai/prompt-api). On a supported Chrome, the side panel offers a one-time model download. Where the model isn't available, Loupe falls back to the rules alone.
+On a supported version of Chrome, the side panel offers a one-time model download. Without it, Loupe still works using the rules alone.
 
 ## Scripts
 
@@ -104,17 +88,12 @@ npm run typecheck
 ## Structure
 
 ```
-extension/   MV3 manifest and background service worker
-src/
-  components/  Side panel UI (splash, sign-in, QR renderer, loader, report, insights)
-  content/     Content script: Loupe card, listing chips, checkout offer, notes
-  lib/         Page reader, fine-print rules, on-device AI, pairing, paycheck math
-  data/        Marketplace catalogue loader and product matcher
-mobile/      Perpay phone app (home, scanner, approval)
-server/      Pairing service (mounted into the phone app's dev server)
-public/      Icons, fonts and the bundled Marketplace catalogue
-scripts/     Catalogue builder, Wi-Fi HTTPS proxy and terminal QR helper
-start.sh     Development launcher
+extension/   Manifest and background worker
+src/         Side panel, store page script, page reader and fine-print rules
+mobile/      Mock Perpay phone app for the demo
+server/      Pairing service
+public/      Icons, fonts and the Marketplace catalogue
+scripts/     Dev helpers and catalogue builder
 docs/        README images
 ```
 
